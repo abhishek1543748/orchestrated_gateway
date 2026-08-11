@@ -1,0 +1,47 @@
+```mermaid
+flowchart TD
+    %% Actors
+    Sender[Sender (Webhook source)]
+    
+    %% HTTP layer
+    subgraph HTTP_Layer[HTTP Layer]
+        direction LR
+        Route[POST /webhook]
+        Route -->|enqueue| Queue
+    end
+    
+    %% Queue
+    subgraph Queue_Sub[Queue (bounded)]
+        direction LR
+        Queue[(Queue)]
+        Queue -->|dequeue| Workers
+    end
+    
+    %% Workers
+    subgraph Workers[Worker Pool]
+        direction LR
+        Workers[Async Workers]
+        Workers -->|process| Success[Processed Store]
+        Workers -->|fail x3| Dead[Dead‑Letter List]
+    end
+    
+    %% Stores
+    subgraph Stores[Stores]
+        Success[Processed Store]
+        Dead[Dead‑Letter List]
+    end
+    
+    %% Metrics
+    subgraph Metrics[Metrics Endpoint]
+        MetricsAPI[GET /metrics]
+    end
+    
+    %% Data flow
+    Sender -->|POST /webhook| Route
+    Queue_Sub -->|reads state| MetricsAPI
+    Workers -->|reads state| MetricsAPI
+    
+    classDef box fill:#f9f,stroke:#333,stroke-width:1.5px;
+    classDef arrow fill:#fff,stroke:#333,stroke-width:1px;
+    class Sender,Route,Queue,Workers,Success,Dead,MetricsAPI box;
+```

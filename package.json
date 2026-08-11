@@ -1,0 +1,22 @@
+{
+  "name": "orchestrated-gateway-project",
+  "version": "0.1.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev":       "tsx watch src/index.ts",
+    "build":     "tsc",
+    "start":     "node dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test":      "tsx --test src/queue/InMemoryQueue.test.ts src/store/ProcessedStore.test.ts src/store/DeadLetterStore.test.ts"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.14.2",
+    "tsx": "^4.7.2",
+    "typescript": "^5.5.2"
+  }
+}

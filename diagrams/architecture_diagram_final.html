@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .mermaid {
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div class="mermaid">
+        flowchart TD
+            %% Styling
+            classDef external fill:#e3f2fd,stroke:#1565c0,stroke-width:2px,color:#0d47a1;
+            classDef http fill:#bbdefb,stroke:#0277bd,stroke-width:2px,color:#01579b;
+            classDef queue fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#1b5e20;
+            classDef worker fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#f57f17;
+            classDef store fill:#ffcdd2,stroke:#c62828,stroke-width:2px,color:#b71c1c;
+            classDef metrics fill:#f3e5f5,stroke:#6a1b9a,stroke-width:2px,color:#4a148c;
+            classDef decision fill:#ffe0b2,stroke:#ef6c00,stroke-width:2px,color:#e65100;
+
+            %% External
+            Sender[Sender]:::external
+
+            %% HTTP Layer
+            subgraph HTTP_Layer["HTTP Layer (Express)"]
+                direction TB
+                Receive[Receive POST /webhook]:::http
+                Parse[Parse JSON Body]:::http
+                BuildMsg[Build IncomingMessage]:::http
+                CheckFull{Queue Full?}:::decision
+                Enqueue[Call queue.enqueue()]:::http
+                Reject[Return 429]:::http
+                Accept[Return 200]:::http
+            end
+
+            %% Queue
+            subgraph Queue_Bounded["Queue (Bounded)"]
+                direction TB
+                QueueInterface[Queue Interface]:::queue
+                InMemoryImpl[In-Memory (v1)]:::queue
+                RedisImpl[Redis-backed (v2)]:::queue
+            end
+
+            %% Worker Pool
+            subgraph Worker_Pool["Worker Pool (N workers)"]
+                direction TB
+                Worker1[Worker 1]:::worker
+                Worker2[Worker 2]:::worker
+                WorkerN[Worker N]:::worker
+                Process[Dequeue & Process]:::worker
+            end
+
+            %% Stores
+            subgraph Stores
+                direction TB
+                ProcessedStore[Processed Store<br/>(Idempotency)]:::store
+                DeadLetterStore[Dead-letter List]:::store
+            end
+
+            %% Metrics
+            MetricsEndpoint[GET /metrics]:::metrics
+
+            %% Connections
+            Sender --> Receive
+            Receive --> Parse
+            Parse --> BuildMsg
+            BuildMsg --> CheckFull
+            CheckFull -- Yes --> Reject
+            CheckFull -- No --> Enqueue
+            Enqueue --> QueueInterface
+            Reject --> Sender
+            Accept --> Sender
+
+            QueueInterface --> InMemoryImpl
+            QueueInterface --> RedisImpl
+            QueueInterface -->|dequeue| Process
+
+            Process --> Worker1
+            Process --> Worker2
+            Process --> WorkerN
+
+            Worker1 -->|success| ProcessedStore
+            Worker1 -->|failure| Retry1[Retry Count < 3?]
+            Worker2 -->|success| ProcessedStore
+            Worker2 -->|failure| Retry2[Retry Count < 3?]
+            WorkerN -->|success| ProcessedStore
+            WorkerN -->|failure| RetryN[Retry Count < 3?]
+
+            Retry1 -- Yes --> Worker1
+            Retry1 -- No --> DeadLetterStore
+            Retry2 -- Yes --> Worker2
+            Retry2 -- No --> DeadLetterStore
+            RetryN -- Yes --> WorkerN
+            RetryN -- No --> DeadLetterStore
+
+            %% Metrics connections
+            MetricsEndpoint -->|reads depth| QueueInterface
+            MetricsEndpoint -->|reads processing rate| Worker_Pool
+            MetricsEndpoint -->|reads success count| ProcessedStore
+            MetricsEndpoint -->|reads failure count| DeadLetterStore
+    </div>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
