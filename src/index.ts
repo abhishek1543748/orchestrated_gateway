@@ -90,7 +90,7 @@ app.post('/webhook', (req: Request, res: Response) => {
 
 /** Inspect messages that failed after exhausting all retries. */
 app.get('/dead-letters', (_req: Request, res: Response) => {
-  res.json({ deadLetters: deadLetterStore.getAll() });
+  res.json({ deadLetters : deadLetterStore.getAll() });
 });
 
 /** Lightweight observability — read-only snapshot of system state. */
