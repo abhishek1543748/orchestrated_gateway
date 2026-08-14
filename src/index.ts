@@ -1,4 +1,5 @@
 import express, { Request, Response } from 'express';
+import cors from 'cors';
 import { randomUUID } from 'crypto';
 import { IncomingMessage } from './types';
 import { config } from './config/env';
@@ -9,6 +10,12 @@ import { WorkerPool } from './worker/WorkerPool';
 import { logger } from './logger';
 
 const app = express();
+
+// --- CORS: allow the frontend origin, configurable via ALLOWED_ORIGIN env var ---
+// In dev: defaults to http://localhost:5173 (Vite dev server)
+// In prod: set ALLOWED_ORIGIN to your deployed frontend URL (e.g. https://your-console.pages.dev)
+app.use(cors({ origin: config.server.allowedOrigin, credentials: true }));
+
 
 // --- Security: limit payload size to prevent oversized request attacks ---
 app.use(express.json({ limit: '100kb' }));

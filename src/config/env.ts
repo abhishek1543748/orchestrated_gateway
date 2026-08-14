@@ -11,7 +11,8 @@ export const config = {
     maxRetries:         Number(process.env.MAX_RETRIES)             || 3,
   },
   server: {
-    port: Number(process.env.PORT) || 3000,
-    host: process.env.HOST || '0.0.0.0',
+    port:          Number(process.env.PORT) || 3000,
+    host:          process.env.HOST           || '0.0.0.0',
+    allowedOrigin: process.env.ALLOWED_ORIGIN  || 'http://localhost:5173',
   },
 };
