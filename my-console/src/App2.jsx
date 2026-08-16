@@ -471,13 +471,7 @@ export default function WebhookGatewayConsole() {
           white-space: pre-wrap; word-break: break-word;
         }
 
-        .pg-baseurl { display: flex; align-items: center; gap: 10px; margin-top: 18px; }
-        .pg-baseurl input {
-          flex: 1; background: ${C.panelSoft}; border: 1px solid ${C.line}; border-radius: 11px;
-          padding: 10px 13px; color: ${C.flowDeep};
-          font-family: 'Space Mono', monospace; font-size: 12.5px;
-        }
-        .pg-baseurl input:focus { outline: none; border-color: ${C.flow}; box-shadow: 0 0 0 3px ${C.flowSoft}; }
+
 
         /* ---- instrument panel (dark) ---- */
         .pg-instrument {
@@ -639,19 +633,9 @@ export default function WebhookGatewayConsole() {
               <pre>{lastResponse ?? 'Awaiting the first request. Send a webhook to begin.'}</pre>
             </div>
 
-            <div className="pg-baseurl">
-              <input
-                value={baseUrl || '(proxy via Vite → localhost:3000)'}
-                readOnly
-                spellCheck={false}
-                aria-label="Gateway base URL"
-                title="Set VITE_API_URL env variable to change this"
-                style={{ opacity: 0.7, cursor: 'default' }}
-              />
-              <button className="pg-btn ghost" onClick={checkHealth} disabled={busy.health}>
-                <Radio size={14} /> {busy.health ? 'Pinging' : 'Ping'}
-              </button>
-            </div>
+            <button className="pg-btn ghost" onClick={checkHealth} disabled={busy.health}>
+              <Radio size={14} /> {busy.health ? 'Pinging' : 'Ping'}
+            </button>
           </section>
 
           {/* right: instrument */}
