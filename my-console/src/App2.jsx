@@ -582,7 +582,7 @@ export default function WebhookGatewayConsole() {
           <span className="pg-brandmark"><Waves size={15} /></span>
           <span className="pg-brand">Gateway</span>
           <span className="pg-status-spacer" />
-          <span className="pg-endpoint">{baseUrl.replace(/^https?:\/\//, '')}</span>
+
           <span className={`pg-dot ${connection}`}>
             <i />{connection === 'online' ? 'ONLINE' : connection === 'offline' ? 'OFFLINE' : 'CHECKING'}
           </span>
