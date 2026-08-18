@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Send, Zap, Flame, Activity, Inbox, RotateCcw, Waves, Radio } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 // ── Design tokens ─────────────────────────────────────────────
 // "Petrol & Signal" — a light lab-instrument aesthetic.
@@ -597,6 +598,11 @@ export default function WebhookGatewayConsole() {
             worker pool. When the queue fills, the gateway sheds load with a clean 429 instead of stalling
             the sender. Push it below and watch the pressure rise.
           </p>
+          <div style={{ marginTop: '20px', marginBottom: '10px' }}>
+            <Link to="/simulation" className="pg-btn solid" style={{ display: 'inline-flex', textDecoration: 'none', width: 'auto', padding: '0 20px' }}>
+              <Activity size={15} /> Open Full Simulation UI
+            </Link>
+          </div>
           <FlowStrip online={connection === 'online'} hot={ratio > 0.75} />
         </header>
 
