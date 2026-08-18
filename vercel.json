@@ -1,4 +1,7 @@
 {
+  "buildCommand": "cd my-console && npm install && npm run build",
+  "outputDirectory": "my-console/dist",
+  "framework": "vite",
   "rewrites": [
     { "source": "/assets/(.*)", "destination": "/assets/$1" },
     { "source": "/(.*)",        "destination": "/index.html" }
