@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { randomUUID } from 'crypto';
+import path from 'path';
 import { IncomingMessage } from './types';
 import { config } from './config/env';
 import { InMemoryQueue } from './queue/InMemoryQueue';
@@ -19,6 +20,9 @@ app.use(cors({ origin: config.server.allowedOrigin, credentials: true }));
 
 // --- Security: limit payload size to prevent oversized request attacks ---
 app.use(express.json({ limit: '100kb' }));
+
+// --- Static: serve src/public for the simulation page ---
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 // ─────────────────────────────────────────────
 // Throughput counter — 1-second sliding window
@@ -93,6 +97,15 @@ app.post('/webhook', (req: Request, res: Response) => {
 
   logger.info({ msgId: msg.id, source: msg.source, queueDepth: queue.depth() }, 'Webhook enqueued');
   res.status(200).json({ status: 'enqueued', id: msg.id });
+});
+
+/**
+ * Frontend simulation — a self-contained HTML page that demonstrates the
+ * gateway backpressure logic without needing the server to be running.
+ * Purely educational; no server state is read or written.
+ */
+app.get('/simulation', (_req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'public', 'simulation.html'));
 });
 
 /** Inspect messages that failed after exhausting all retries. */
